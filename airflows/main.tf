@@ -4,7 +4,7 @@ data "google_service_account" "iguana_composer_service_account" {
 }
 
 module "iguana-prod-primary-v6" {
-  source = "git@github.com:iguanalabs/iguana-terraform-modules//gcp/composer/saas?ref=gcp/composer/saas-2.16.0"
+  source = "../saas"
 
   composer_name         = "iguana-prod-primary-v6"
   environment_with_dash = "iguana-prod-primary-v6"
@@ -29,7 +29,7 @@ module "iguana-prod-primary-v6" {
 }
 
 module "iguana-prod-load-v3" {
-  source = "git@github.com:iguanalabs/iguana-terraform-modules//gcp/composer/saas?ref=gcp/composer/saas-2.16.0"
+  source = "../saas"
 
   composer_name         = "iguana-prod-load-v3"
   environment_with_dash = "iguana-prod-load-v3"
@@ -54,7 +54,7 @@ module "iguana-prod-load-v3" {
 }
 
 module "iguana-prod-latest-v5" {
-  source = "git@github.com:iguanalabs/iguana-terraform-modules//gcp/composer/saas?ref=gcp/composer/saas-2.16.0"
+  source = "../saas"
 
   composer_name         = "iguana-prod-latest-v5"
   environment_with_dash = "prod-v5"
@@ -82,7 +82,7 @@ module "iguana-prod-latest-v5" {
 }
 
 module "iguana-prod-secondary-v3" {
-  source = "git@github.com:iguanalabs/iguana-terraform-modules//gcp/composer/saas?ref=gcp/composer/saas-2.16.0"
+  source = "../saas"
 
   composer_name         = "iguana-prod-secondary-v3"
   environment_with_dash = "iguana-prod-secondary-v3"
