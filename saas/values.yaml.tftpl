@@ -1,0 +1,79 @@
+mode: deployment
+
+# Let's shorten the service name to something more friendly
+fullnameOverride: collector
+
+config:
+  receivers:
+    statsd/2:
+      endpoint: "0.0.0.0:8125"
+      aggregation_interval: 5s
+      enable_metric_type: false
+      is_monotonic_counter: true
+      timer_histogram_mapping:
+        - statsd_type: "histogram"
+          observer_type: "histogram"
+          histogram:
+            max_size: 170
+        - statsd_type: "timing"
+          observer_type: "summary"
+
+  processors:
+    batch: {}
+    cumulativetodelta: {}
+    metricstransform:
+      transforms:
+        - include: ^(.*)$$
+          match_type: regexp
+          action: update
+          # the triple dollar sign here is intended, because of how terraform escapes the
+          # interpolation sequence. So double dollar to escape it for the collector parser, once
+          # more to escape the dollar-open-curly-brace sequence
+          new_name: custom.$$${1}
+        - include: ^(.*)$$
+          match_type: regexp
+          action: update
+          operations:
+            - action: add_label
+              new_label: composer_environment
+              new_value: ${composer_name}
+
+  exporters:
+    logging:
+      verbosity: detailed
+    otlp:
+      endpoint: https://otlp.nr-data.net:443
+      headers:
+        api-key: ${newrelic_ingestion_key}
+
+  service:
+    pipelines:
+      metrics:
+        receivers: [statsd/2]
+        processors: [metricstransform, cumulativetodelta, batch]
+        exporters: [logging, otlp]
+
+ports:
+  otlp:
+    enabled: false
+    containerPort: 4317
+    servicePort: 4317
+    protocol: TCP
+    appProtocol: grpc
+  otlp-http:
+    enabled: false
+    containerPort: 4318
+    servicePort: 4318
+    protocol: TCP
+  statsd:
+    enabled: true
+    containerPort: 8125
+    servicePort: 8125
+    protocol: UDP
+  metrics:
+    # The metrics port is disabled by default. However you need to enable the port
+    # in order to use the ServiceMonitor (serviceMonitor.enabled) or PodMonitor (podMonitor.enabled).
+    enabled: false
+    containerPort: 8888
+    servicePort: 8888
+    protocol: TCP
